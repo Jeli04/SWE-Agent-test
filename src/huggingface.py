@@ -1,5 +1,7 @@
-from smolagents import Tool, HfApiModel, load_tool, CodeAgent
+from smolagents import Tool, HfApiModel, load_tool, CodeAgent, TransformersModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import list_models
+from github import get_github_issue, get_issue_count
 
 """
     Example 1 from the documentation
@@ -26,7 +28,12 @@ class HFModelDownloadsTool(Tool):
 
 model_downloads_tool = HFModelDownloadsTool()
 
-model = HfApiModel(model_id="Qwen/Qwen2.5-Coder-32B-Instruct")
+# model_name = "Qwen/Qwen2.5-7B-Instruct"  # Replace with the model you want to use
+# tokenizer = AutoTokenizer.from_pretrained(model_name)
+# model = AutoModelForCausalLM.from_pretrained(model_name)
+# model = HfApiModel(model_id="Qwen/Qwen2.5-7B-Instruct")
+model = TransformersModel(model_id="HuggingFaceTB/SmolLM-135M-Instruct", max_new_tokens=512)
+
 
 agent = CodeAgent(tools=[], model=model, add_base_tools=True)
 agent.tools[model_downloads_tool.name] = model_downloads_tool
@@ -59,11 +66,11 @@ class GetLatestIssue(Tool):
     def forward(self, task: str):
         # model = next(iter(list_models(filter=task, sort="downloads", direction=-1)))
         # return model.id
-        return "Issue 100"
+        issue_count = get_issue_count(owner="Jeli04", repo="SWE-Agent-test")
+        issue_details = get_github_issue(owner="Jeli04", repo="SWE-Agent-test", issue_number=issue_count)
+        return issue_details['body']
 
 model_git_tool = GetLatestIssue()
-
-model = HfApiModel(model_id="Qwen/Qwen2.5-Coder-32B-Instruct")
 
 agent = CodeAgent(tools=[], model=model, add_base_tools=True)
 agent.tools[model_git_tool.name] = model_git_tool
