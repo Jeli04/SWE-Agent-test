@@ -1,0 +1,3 @@
+[submodule "ollama-tools"]
+	path = ollama-tools
+	url = https://github.com/meirm/ollama-tools
