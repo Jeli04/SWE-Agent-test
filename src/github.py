@@ -32,33 +32,59 @@ def get_github_pr(owner: str, repo: str, pr_number: int) -> dict:
     response.raise_for_status()
     return response.json()
 
-def create_pull_request(owner: str, repo: str, head: str, base: str, title: str, body: str = "") -> dict:
-    """
-    Creates a pull request on GitHub.
+def create_pull_request(owner, repo, issue_number, branch_name, base="main"):
+    headers = {}
     
-    Parameters:
-      - owner: GitHub username or organization name.
-      - repo: Repository name.
-      - head: The branch where your changes are implemented.
-      - base: The branch you want to merge your changes into (e.g., "main").
-      - title: The title of the pull request.
-      - body: (Optional) The pull request description.
-    """
-    url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/pulls"
+    # Retrieve the issue details from GitHub
+    issue_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}"
+    issue_response = requests.get(issue_url, headers=headers)
+    if issue_response.status_code != 200:
+        print("Error retrieving issue details:", issue_response.content)
+        return None
+    issue_details = issue_response.json()
+    
+    # Check if the issue already has a linked pull request.
+    # GitHub's API adds a 'pull_request' key if the issue is or is linked to a PR.
+    if "pull_request" in issue_details:
+        print(f"Issue #{issue_number} already has a linked pull request. Skipping creation.")
+        return None
+
+    # Construct the PR title and body.
+    issue_title = issue_details.get("title", "").strip()
+    issue_body = issue_details.get("body", "")
+    pr_title = f"[#{issue_number}] {issue_title}"
+    pr_body = f"Closes #{issue_number}\n\n{issue_body}"
+    
+    # Prepare the payload to create the pull request.
+    pr_url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
     payload = {
-        "title": title,
-        "head": head,
-        "base": base,
-        "body": body
+        "title": pr_title,
+        "body": pr_body,
+        "head": branch_name,
+        "base": base
     }
-    response = requests.post(url, headers=HEADERS, json=payload)
+    print(payload)
+    
+    # Create the pull request.
+    pr_response = requests.post(pr_url, headers=headers, json=payload)
+    if pr_response.status_code != 201:
+        print("Error creating pull request:", pr_response.content)
+        return None
+    pr = pr_response.json()
+    print("Created PR:", pr.get("html_url", ""))
+    return pr
+
+def total_prs(owner, repo, head, base):
+    url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+    params = {"head": f"{owner}:{head}", "base": base, "state": "all"}
+    response = requests.get(url, headers=HEADERS, params=params)
     response.raise_for_status()
-    return response.json()
+    return len(response.json()) 
 
 def main():
     owner = "Jeli04"
     repo = "SWE-Agent-test"
-    issue_number = 1
+    issue_number = 4
 
     # Retrieve the issue details
     issue_details = get_github_issue(owner, repo, issue_number)
@@ -72,13 +98,13 @@ def main():
     head = branch_name  
     base = "main"
 
-    # Create the PR title and body
-    pr_title = f"Fix for Issue #{issue_number}: {issue_title}"
-    pr_body = f"This pull request addresses the issue and includes the necessary fixes.\n\nCloses #{issue_number}"
-
+    # Print the number of PRs 
+    num_prs = total_prs(owner, repo, head, base)
+    print("Number of PRs:", num_prs)
+    
+    # Create the pull request
     try:
-        pr_response = create_pull_request(owner, repo, head, base, pr_title, pr_body)
-        print("Created PR URL:", pr_response.get("html_url"))
+        pr_response = create_pull_request(owner, repo, issue_number, branch_name, base="main")
     except requests.exceptions.HTTPError as e:
         print(f"Error creating PR: {e.response.json()}")
 
