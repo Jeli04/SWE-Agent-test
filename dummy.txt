@@ -1,0 +1,4 @@
+function lmao() {
+  console.log("lolololololol");
+  console.log("lmao");
+}
