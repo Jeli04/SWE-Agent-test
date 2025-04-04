@@ -93,7 +93,7 @@ def main():
     print("Issue Details:", issue_details['body'])
 
     # Use the correct branch name format without remotes/origin/
-    branch_name = "feature/test-branch"  # Modified this line
+    branch_name = "test"  # Modified this line
 
     head = branch_name  
     base = "main"
@@ -101,7 +101,7 @@ def main():
     # Print the number of PRs 
     num_prs = total_prs(owner, repo, head, base)
     print("Number of PRs:", num_prs)
-    
+
     # Create the pull request
     try:
         pr_response = create_pull_request(owner, repo, issue_number, branch_name, base="main")
