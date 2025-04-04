@@ -1,4 +1,4 @@
-import ollama
+import ollama_tool
 import re
 # from src.utils import *
 from github import get_github_issue
@@ -8,7 +8,7 @@ class Agent():
         # TODO add config parsing code
 
         self.model = "llama3"
-        self.client = ollama.Client()
+        self.client = ollama_tool.Client()
 
     # temp function only for testing
     def parse(self, query):
@@ -34,7 +34,7 @@ class Agent():
         return output_dict
 
     def request(self, query):
-        response = ollama.chat(model=self.model, messages=[{"role": "user", "content": query}])
+        response = ollama_tool.chat(model=self.model, messages=[{"role": "user", "content": query}])
         print(response['message']['content'])
         output_dict = self.parse(response['message']['content'])
 
