@@ -28,20 +28,18 @@ class HFModelDownloadsTool(Tool):
 
 model_downloads_tool = HFModelDownloadsTool()
 
-# model_name = "Qwen/Qwen2.5-7B-Instruct"  # Replace with the model you want to use
+# model_name = "Qwen/Qwen2.5-7B-Instruct"  # Replace with the local model you want to use
 # tokenizer = AutoTokenizer.from_pretrained(model_name)
 # model = AutoModelForCausalLM.from_pretrained(model_name)
-# model = HfApiModel(model_id="Qwen/Qwen2.5-7B-Instruct")
-model = TransformersModel(model_id="HuggingFaceTB/SmolLM-135M-Instruct", max_new_tokens=512)
-
-
+# model = HfApiModel(model_id="Qwen/Qwen2.5-7B-Instruct")   # API Inference call for Qwen, you can replace with another model as well
+model = TransformersModel(model_id="HuggingFaceTB/SmolLM-135M-Instruct", max_new_tokens=512)    # very small model provided by HF
 agent = CodeAgent(tools=[], model=model, add_base_tools=True)
 agent.tools[model_downloads_tool.name] = model_downloads_tool
 
-# agent.run(
-#     "Can you give me the name of the model that has the most downloads in the 'text-to-video' task on the Hugging Face Hub but reverse the letters?"
-# )
-
+# you can comment this if you just want to test example 2
+agent.run(
+    "Can you give me the name of the model that has the most downloads in the 'text-to-video' task on the Hugging Face Hub but reverse the letters?"
+)
 
 
 
@@ -49,7 +47,7 @@ agent.tools[model_downloads_tool.name] = model_downloads_tool
     Example 2 using git api
 """
 
-# Example from the documentation to get most downloaded model
+# Create a Tool using the GitHub functions 
 class GetLatestIssue(Tool):
     name = "get_latest_issue"
     description = """
@@ -64,9 +62,7 @@ class GetLatestIssue(Tool):
     output_type = "string"
 
     def forward(self, task: str):
-        # model = next(iter(list_models(filter=task, sort="downloads", direction=-1)))
-        # return model.id
-        issue_count = get_issue_count(owner="Jeli04", repo="SWE-Agent-test")
+        issue_count = get_issue_count(owner="Jeli04", repo="SWE-Agent-test")    
         issue_details = get_github_issue(owner="Jeli04", repo="SWE-Agent-test", issue_number=issue_count)
         return issue_details['body']
 
