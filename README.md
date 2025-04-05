@@ -1,7 +1,18 @@
 # SWE-Agent-test
 
-'''
-    When running anything github related please set your token
+Clone with submodules 
+```
+    git clone --recurse-submodules https://github.com/Jeli04/SWE-Agent-test.git
+```
 
+Setup the requirements for ollama-tools
+```
+    cd ollama-tools
+    pip install -r requirements.txt
+```
+
+When running anything Github related please set your token
+```
     export GITHUB_TOKEN=your_token
-'''
+```
+
