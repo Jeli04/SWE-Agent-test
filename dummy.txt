@@ -1,7 +1,4 @@
-function lol() {
-    function lol2(){
-        console.log("lol2");
-    }
-
-  console.log("lol");
+function lmao() {
+  console.log("lolololololol");
+  console.log("lmao");
 }
