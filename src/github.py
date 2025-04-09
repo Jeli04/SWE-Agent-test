@@ -77,6 +77,22 @@ def close_github_issue(owner: str, repo: str, issue_number: int) -> dict:
     print("Closed issue:", issue.get("html_url", ""))
     return issue
 
+def close_github_pull_request(owner: str, repo: str, pull_number: int) -> dict:
+    """
+    Closes a GitHub pull request in the specified repository.
+    owner: The owner of the GitHub repository.
+    repo: The name of the GitHub repository.
+    pull_number: The number of the pull request to close.
+    """
+    url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/pulls/{pull_number}"
+    response = requests.patch(url, headers=HEADERS, json={"state": "closed"})
+    if response.status_code != 200:
+        print("Error closing pull request:", response.content)
+        return None
+    pr = response.json()
+    print("Closed pull request:", pr.get("html_url", ""))
+    return pr
+
 def get_pr_count(owner: str, repo: str) -> dict:
     """
     Retrieves the number of pull requests in a GitHub repository.
