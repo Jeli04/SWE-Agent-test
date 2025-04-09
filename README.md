@@ -11,7 +11,7 @@ Setup the requirements for ollama-tools
     pip install -r requirements.txt
 ```
 
-When running anything Github related please set your token
+When running anything Github related please set your token (run this below in terminal)
 ```
     export GITHUB_TOKEN=your_token
 ```
