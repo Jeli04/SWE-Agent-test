@@ -77,6 +77,28 @@ def close_github_issue(owner: str, repo: str, issue_number: int) -> dict:
     print("Closed issue:", issue.get("html_url", ""))
     return issue
 
+def merge_github_branch(owner: str, repo: str, head: str, base: str = "main") -> dict:
+    """
+    Merges a GitHub branch into another branch in the specified repository.
+    owner: The owner of the GitHub repository.
+    repo: The name of the GitHub repository.
+    head: The name of the branch to merge from.
+    base: The name of the branch to merge into (defaults to main).
+    """
+    url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/merges"
+    payload = {
+        "base": base,
+        "head": head,
+        "commit_message": f"Merge {head} into {base}"
+    }
+    response = requests.post(url, headers=HEADERS, json=payload)
+    if response.status_code != 201:
+        print("Error merging branches:", response.content)
+        return None
+    merge_result = response.json()
+    print(f"Successfully merged {head} into {base}")
+    return merge_result
+
 def get_pr_count(owner: str, repo: str) -> dict:
     """
     Retrieves the number of pull requests in a GitHub repository.
