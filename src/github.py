@@ -167,6 +167,30 @@ def total_prs(owner, repo, head, base):
     response.raise_for_status()
     return len(response.json()) 
 
+def fetch_files_from_codebase(owner: str, repo: str, file_paths: list = None) -> dict:
+    """
+    Fetches files from a GitHub repository's codebase.
+    owner: The owner of the GitHub repository.
+    repo: The name of the GitHub repository.
+    file_paths: A list of specific file paths to fetch. If None, fetches all files in the repository.
+    Returns:
+        A dictionary where keys are file paths and values are file contents.
+    """
+    url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/contents/"
+    response = requests.get(url, headers=HEADERS)
+    response.raise_for_status()
+    contents = response.json()
+
+    files = {}
+    for item in contents:
+        if item["type"] == "file":
+            file_path = item["path"]
+            if file_paths is None or file_path in file_paths:
+                file_response = requests.get(item["download_url"], headers=HEADERS)
+                file_response.raise_for_status()
+                files[file_path] = file_response.text
+    return files
+
 def main():
     owner = "Jeli04"
     repo = "SWE-Agent-test"
