@@ -10,6 +10,7 @@ sys.path.append("/Users/jerryli/Desktop/python/SWE-Agent-test/ollama-tools")
 from ollama_tools import generate_function_description, use_tools
 # import the functions we want to convert into tools from the github file
 from github import get_issue_count, get_github_issue, get_pr_count, get_github_pr, create_github_issue, close_github_issue
+from shell_exec import run_command, open_subprocess, retrieve_subprocess_output
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,6 +22,8 @@ tools=[
         generate_function_description(get_github_pr),
         generate_function_description(create_github_issue),
         generate_function_description(close_github_issue),
+        generate_function_description(run_command),
+        generate_function_description(open_subprocess),
         ]
 
 logging.debug("Tools:")
