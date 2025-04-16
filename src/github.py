@@ -187,6 +187,30 @@ def fetch_files_from_codebase(file_paths: list) -> dict:
             pass
     return file_contents
 
+def edit_files_from_codebase(file_updates: dict) -> dict:
+    """
+    Overwrites multiple files in the local codebase with new content.
+
+    Args:
+        file_updates (dict): A dictionary where:
+            - Keys are file paths (relative or absolute).
+            - Values are the new content (as strings) to write into each file.
+
+    Returns:
+        dict: A dictionary summarizing the result for each file:
+            - If successful: { "file_path": "success" }
+            - If failed: { "file_path": "error: <error message>" }
+    """
+    results = {}
+    for file_path, new_content in file_updates.items():
+        try:
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.write(new_content)
+            results[file_path] = "success"
+        except Exception as e:
+            results[file_path] = f"error: {str(e)}"
+    return results
+
 
 def main():
     owner = "Jeli04"

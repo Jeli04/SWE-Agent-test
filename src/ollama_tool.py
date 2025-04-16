@@ -6,10 +6,10 @@ import time
 import os
 import logging
 import sys
-sys.path.append("/Users/risaonishi/Downloads/CS/SWE-Agent-test/ollama-tools")
+sys.path.append("C:/Users/stanl/Coding/SWE-Agent-test/ollama-tools")
 from ollama_tools import generate_function_description, use_tools
 # import the functions we want to convert into tools from the github file
-from github import get_issue_count, get_github_issue, get_pr_count, get_github_pr, create_github_issue, close_github_issue, fetch_files_from_codebase
+from github import get_issue_count, get_github_issue, get_pr_count, get_github_pr, create_github_issue, close_github_issue, fetch_files_from_codebase, edit_files_from_codebase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -22,6 +22,7 @@ tools=[
         generate_function_description(create_github_issue),
         generate_function_description(close_github_issue),
         generate_function_description(fetch_files_from_codebase),
+        generate_function_description(edit_files_from_codebase),
         ]
 
 logging.debug("Tools:")
@@ -43,7 +44,7 @@ while True:
         continue
     messages.append(("user", query))
     response = ollama.chat(
-        model='gemma:4b',
+        model='qwen2.5-coder:3b',
         messages=[ {'role': role, 'content': content} for role,content in messages ],
         tools=tools,
     )
@@ -56,8 +57,6 @@ while True:
         result = response['message']['content']
     print(result)
     messages.append(("assistant", result))
-
-
 
 
 
