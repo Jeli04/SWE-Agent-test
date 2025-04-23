@@ -8,20 +8,33 @@ import logging
 import sys
 sys.path.append("/Users/jerryli/Desktop/python/SWE-Agent-test/ollama-tools")
 from ollama_tools import generate_function_description, use_tools
-# import the functions we want to convert into tools from the github file
-from github import get_issue_count, get_github_issue, get_pr_count, get_github_pr, create_github_issue, close_github_issue
+from github import stage_and_commit_files, get_issue_count, get_github_issue, create_github_issue, close_github_issue, merge_github_branch, close_github_pull_request, get_pr_count, get_github_pr, create_pull_request, total_prs, create_new_branch, fetch_commit_history, fetch_files_from_codebase, edit_files_from_codebase, create_file
+from shell_exec import run_command, open_subprocess, retrieve_subprocess_output
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-tools=[
-        generate_function_description(get_issue_count),
-        generate_function_description(get_github_issue),
-        generate_function_description(get_pr_count),
-        generate_function_description(get_github_pr),
-        generate_function_description(create_github_issue),
-        generate_function_description(close_github_issue),
-        ]
+tools = [
+    generate_function_description(stage_and_commit_files),
+    generate_function_description(get_issue_count),
+    generate_function_description(get_github_issue),
+    generate_function_description(create_github_issue),
+    generate_function_description(close_github_issue),
+    generate_function_description(merge_github_branch),
+    generate_function_description(close_github_pull_request),
+    generate_function_description(get_pr_count),
+    generate_function_description(get_github_pr),
+    generate_function_description(create_pull_request),
+    generate_function_description(total_prs),
+    generate_function_description(create_new_branch),
+    generate_function_description(fetch_commit_history),
+    generate_function_description(fetch_files_from_codebase),
+    generate_function_description(edit_files_from_codebase),
+    generate_function_description(run_command),
+    generate_function_description(open_subprocess),
+    generate_function_description(retrieve_subprocess_output),
+    generate_function_description(create_file),
+]
 
 logging.debug("Tools:")
 logging.debug(json.dumps(tools, indent=4))

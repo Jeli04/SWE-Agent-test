@@ -1,2 +1,4 @@
 /src/__pycache__
 /src/test.py
+test*.py
+test_project/
