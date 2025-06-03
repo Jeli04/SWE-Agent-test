@@ -149,6 +149,64 @@ def close_github_pull_request(owner: str, repo: str, pull_number: int) -> dict:
     print("Closed pull request:", pr.get("html_url", ""))
     return pr
 
+def merge_pr_accept_theirs(owner: str, repo: str, pull_number: int, base: str = "main") -> bool:
+    """Merge a pull request locally favoring the PR branch during conflicts.
+
+    This function performs a git merge of the PR branch into ``base`` using
+    the ``theirs`` strategy option so that any conflicts are resolved in
+    favour of the pull request's changes.  After pushing the result back to
+    GitHub the pull request is marked as closed via :func:`close_github_pull_request`.
+
+    Args:
+        owner: Repository owner.
+        repo: Repository name.
+        pull_number: Number of the pull request to merge.
+        base: Branch to merge into. Defaults to ``"main"``.
+
+    Returns:
+        bool: ``True`` if the merge and push were successful, ``False`` otherwise.
+    """
+
+    pr_url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/pulls/{pull_number}"
+    try:
+        pr_resp = requests.get(pr_url, headers=HEADERS)
+        pr_resp.raise_for_status()
+        pr_info = pr_resp.json()
+    except Exception as e:
+        print(f"Error retrieving PR info: {e}")
+        return False
+
+    head_branch = pr_info.get("head", {}).get("ref")
+    if not head_branch:
+        print("Could not determine head branch for PR")
+        return False
+
+    repo_dir = os.path.join("/tmp", f"{repo}_repo")
+    remote_url = f"https://{GITHUB_TOKEN}@github.com/{owner}/{repo}.git"
+
+    try:
+        if os.path.exists(repo_dir):
+            local_repo = Repo(repo_dir)
+            origin = local_repo.remotes.origin
+            origin.set_url(remote_url)
+            origin.fetch()
+        else:
+            local_repo = Repo.clone_from(remote_url, repo_dir)
+            origin = local_repo.remotes.origin
+
+        local_repo.git.checkout(base)
+        origin.pull(base)
+        origin.fetch(head_branch)
+        local_repo.git.merge('-X', 'theirs', f'origin/{head_branch}')
+        origin.push(base)
+    except exc.GitCommandError as e:
+        print(f"Git error during merge: {e}")
+        return False
+
+    # Close the PR after successful push
+    close_github_pull_request(owner, repo, pull_number)
+    return True
+
 def get_pr_count(owner: str, repo: str) -> dict:
     """
     Retrieves the number of pull requests in a GitHub repository.
